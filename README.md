@@ -1,84 +1,108 @@
-# Jelajah Ketahun — Peta Saja + Halaman Tambah Gambar (PHP & MySQL)
+# Jelajah Ketahun — Peta Interaktif 11 Desa
 
-Website sederhana untuk 11 desa Kecamatan Ketahun, Kabupaten Bengkulu Utara, Bengkulu. **Tidak ada login, header, navbar, sidebar, maupun direktori desa.** Halaman pertama langsung menampilkan peta memenuhi layar.
+Aplikasi peta interaktif berbasis **PHP, MySQL, JavaScript, dan Leaflet** untuk mengenalkan desa-desa di **Kecamatan Ketahun, Kabupaten Bengkulu Utara**. Pengunjung dapat memilih tampilan jalan/satelit, mencari desa, membuka informasi lokasi, dan membagikan foto desa melalui halaman khusus tanpa login.
 
-## Apa yang tersedia?
+> **Status:** Proyek siap dikembangkan dan diuji di Laragon serta dipasang pada hosting PHP + MySQL. Koordinat dalam database adalah titik rujukan/perkiraan; belum merupakan batas wilayah atau kantor desa yang sudah diverifikasi. Upload publik tanpa login perlu moderasi tambahan sebelum website digunakan secara luas.
 
-- **`index.php`**: peta interaktif penuh layar, 11 penanda desa, pencarian desa melalui kotak kecil di atas peta, layer Jalan/Satelit, dan tombol menampilkan semua desa.
-- **Klik penanda desa**: tampil pratinjau foto, nama desa, dan deskripsi. Klik **Lihat informasi & galeri** untuk foto tambahan dan koordinat rujukan.
-- **Satu tombol `Tambah Gambar`** pada peta: mengarah ke **`tambah-foto.php`**, halaman terpisah (bukan popup) dengan daftar pilihan 11 desa, pilihan file, pratinjau, dan kolom keterangan.
-- Foto tersimpan sebagai file di `uploads/desa/`, sementara metadata dan informasi desa berada di **MySQL**. Foto dapat dilihat pengunjung lain setelah server diunggah ke hosting publik.
-- Tanpa login: tersedia batas **4 MB/file**, **8 foto/desa**, dan **12 unggahan per alamat IP setiap hari**. File harus berformat JPG/PNG/WEBP dan sesuai dengan pemeriksaan tipe sebenarnya.
+## Fitur
 
-**Akurasi:** koordinat awal di SQL adalah *titik rujukan/perkiraan*, bukan batas administratif ataupun posisi kantor desa resmi. Perbaiki kolom `villages.lat` dan `villages.lng` menggunakan data GPS yang kamu verifikasi. Jangan menganggap marker sebagai titik presisi administratif.
+- Peta fullscreen dengan 11 titik desa dan popup foto/informasi.
+- Lapisan jalan dan satelit.
+- Pencarian desa tanpa sidebar, direktori, header, atau navbar.
+- **Satu tombol Tambah Gambar** menuju halaman `tambah-foto.php` (bukan popup).
+- Pilih desa, pratinjau foto, unggah foto JPG/PNG/WEBP dan isi keterangan.
+- Penyimpanan foto ke `uploads/desa/` dan metadata ke database MySQL.
+- Tanpa login atau dashboard admin.
 
-## Cara menjalankan di Laragon (instalasi baru)
+## Cakupan desa
 
-1. Ekstrak folder `jelajah-ketahun` dari ZIP ke `C:\laragon\www\jelajah-ketahun\`.
-2. Di Laragon klik **Start All** supaya **Apache** dan **MySQL** berjalan.
-3. Di **HeidiSQL / phpMyAdmin**, jalankan `database.sql`. File tersebut membuat database `jelajah_ketahun`, tabel `villages`, `village_photos`, dan `upload_limits`, serta 11 desa.
-4. Cek file **`config.php`**: alamat `127.0.0.1`, port `3306`, user `root`, password kosong adalah konfigurasi Laragon yang umum. Jika milikmu berbeda, sesuaikan.
-5. Buka **`http://localhost/jelajah-ketahun/`** (atau `http://jelajah-ketahun.test/` jika Laragon Auto Virtual Hosts aktif).
-6. Klik satu-satunya tombol **Tambah Gambar** untuk membuka **`tambah-foto.php`**. Pilih desa, masukkan foto dan keterangannya, lalu klik **Unggah gambar**.
-7. Setelah sukses, tekan **Lihat desa di peta** untuk menuju marker desa dengan foto barunya.
+Bukit Indah · Bukit Tinggi · Dusun Raja · Fajar Baru · Giri Kencana · Kuala Langi · Lubuk Mindai · Melati Harjo · Pasar Ketahun · Talang Baru · Urai.
 
-### Kalau biasa membuka `localhost:8000`
+## Teknologi
 
-Buka terminal **di dalam folder proyek `jelajah-ketahun`** kemudian jalankan:
+| Komponen | Teknologi |
+| --- | --- |
+| Antarmuka | HTML, CSS, JavaScript |
+| Peta | Leaflet + tile OpenStreetMap/Esri (perlu koneksi internet) |
+| Backend | PHP (PDO MySQL) |
+| Database | MySQL / MariaDB |
+| Lokal | Laragon |
+| Hosting | Hosting PHP + MySQL seperti InfinityFree |
+
+## Menjalankan di Laragon
+
+1. Clone/download repository ke `C:\laragon\www\jelajah-ketahun`.
+2. Jalankan Apache dan MySQL dari Laragon.
+3. Buka HeidiSQL/phpMyAdmin, import `database/laragon_setup.sql` untuk membuat database dan mengisi 11 desa.
+4. Duplikat `config.example.php` menjadi **`config.php`**, lalu sesuaikan kredensial MySQL. Isi `upload_salt` dengan nilai acak sendiri. Dari Laragon Terminal, jalankan: `php -r "echo bin2hex(random_bytes(32)), PHP_EOL;"`.
+5. Akses `http://localhost/jelajah-ketahun/` atau `http://jelajah-ketahun.test/` apabila auto virtual host Laragon aktif.
+6. Coba peta, klik marker, dan tambah satu foto pengujian.
+
+**Jangan pernah `git add -f config.php`.** Berkas `config.php` sudah dikecualikan oleh `.gitignore`.
+
+## Deploy ke hosting PHP + MySQL
+
+1. Buat hosting/subdomain dan database MySQL dari Control Panel hosting (contoh: InfinityFree).
+2. Import **`database/schema.sql`** ke database hosting yang telah dibuat (tidak perlu `CREATE DATABASE`).
+3. Di komputer, salin `config.example.php` ke `config.php`; isi nilai MySQL hosting (hostname, database, username, password) dan `upload_salt` acak.
+4. Upload **file aplikasi pada root repo** (`index.php`, `tambah-foto.php`, `api/`, `assets/`, `uploads/`, `.htaccess`, dan `config.php`) langsung ke `htdocs/` hosting. **Jangan unggah** `.git/`, `database/`, atau `config.example.php` bila tidak diperlukan.
+5. Pastikan folder `uploads/desa` tersedia dan dapat ditulisi PHP. Jangan menghapus foto lama ketika deploy ulang.
+6. Uji akses HTTPS, peta, dan unggah foto dari browser lain.
+
+**Penting:** GitHub menyimpan kode, bukan server PHP. Push ke GitHub **tidak otomatis men-deploy** ke InfinityFree. Upload perubahan secara manual lewat File Manager/FTP kecuali nanti dibuat sistem deployment terpisah.
+
+## Upload pembaruan ke GitHub
+
+Pertama kali (buat dulu repository GitHub kosong, tanpa README dan `.gitignore` bawaan):
 
 ```bash
-php -S localhost:8000
+git init -b main
+git add .
+git commit -m "Initial commit: Jelajah Ketahun interactive map"
+git remote add origin https://github.com/USERNAME/jelajah-ketahun.git
+git push -u origin main
 ```
 
-Buka `http://localhost:8000/`. **MySQL Laragon harus tetap aktif.** Server PHP bawaan ini hanya untuk tes lokal, karena tidak mendukung aturan `.htaccess` Apache untuk perlindungan file konfigurasi dan folder upload.
+Berikutnya:
 
-## Jika sudah pernah memakai versi sebelumnya
+```bash
+git add .
+git commit -m "Update fitur Jelajah Ketahun"
+git push
+```
 
-- **Jangan menghapus database atau file foto lama.** Kode baru memakai tabel yang sama (`villages`, `village_photos`, `upload_limits`).
-- Jika database belum memiliki tabel `upload_limits`, jalankan `upgrade_database_lama.sql` melalui HeidiSQL/phpMyAdmin.
-- Ganti file aplikasi dengan versi baru, tetapi pertahankan isi folder `uploads/desa/` lama.
-- Tabel `admin_users` lama boleh tetap ada di database, tetapi tidak digunakan. Tidak ada login atau admin di versi ini.
-- Ketika MySQL belum tersambung, peta mencoba menampilkan **11 penanda rujukan sementara** (jika Leaflet dapat diunduh). Unggah gambar memerlukan MySQL aktif.
+Ganti `USERNAME` dengan username GitHub milikmu. Gunakan otentikasi melalui Git Credential Manager/browser saat diminta, bukan membagikan password atau token di repository.
 
-## Peta kosong / gambar dasar tidak tampil
-
-Peta memakai **Leaflet 1.9.4** yang dimuat dari CDN (ada fallback CDN), jalan dari OpenStreetMap, satelit dari Esri. Jadi **memerlukan internet** untuk peta dasar.
-
-1. Uji tombol **Jalan** dan **Satelit**.
-2. Tekan **F12 → Network / Console**, lihat error untuk `leaflet.js`, `leaflet.css`, `tile.openstreetmap.org`, dan `server.arcgisonline.com`.
-3. Jika ada pesan koneksi database di peta, periksa `config.php`, instalasi `database.sql`, serta Laragon MySQL.
-4. Ekstensi adblocker, pengaturan firewall, DNS, atau koneksi jaringan mungkin memblokir CDN atau tile server. Coba jaringan lain.
-5. Ketika gambar dasar gagal, marker bisa tetap terlihat di atas latar kosong selama Leaflet berhasil diunduh. Ini bukan berarti posisi desanya hilang.
-
-## Agar dapat dilihat orang lain melalui internet
-
-Untuk situs publik, pakai hosting **PHP 8.1+**, **MySQL/MariaDB**, serta Apache dengan `.htaccess` (atau aturan server web setara). Hosting HTML statis seperti GitHub Pages **tidak mendukung backend PHP + MySQL**.
-
-1. Buat database di panel hosting, lalu jalankan `hosting_schema.sql` **pada database hosting tersebut** (versi ini tidak membuat database karena database hosting sudah ada).
-2. Unggah folder proyek ke `public_html` dan sesuaikan kredensial database pada `config.php`.
-3. Ubah `upload_salt` pada `config.php` menjadi string rahasia acak panjang. Jangan unggah file konfigurasi ke repositori publik.
-4. Pastikan `uploads/desa/` writable, serta modul `pdo_mysql`, `fileinfo`, dan `session` aktif; PHP `upload_max_filesize` dan `post_max_size` lebih dari 4 MB.
-5. Akses domain publik, pastikan marker, gambar dasar, dan fitur unggah bekerja.
-
-**Keamanan:** tanpa login, siapa saja yang mengunjungi halaman tambah gambar bisa mengirim foto. Validasi ukuran, MIME, dimensi gambar, nama berkas acak, limit unggahan, dan `.htaccess` sudah disiapkan; namun **belum ada moderasi**. Sebelum dipublikasikan luas, sangat disarankan menambah CAPTCHA, moderasi unggahan, backup, monitoring penyalahgunaan, dan konfigurasi rate limit server. Foto yang salah unggah dapat dihapus manual melalui HeidiSQL (hapus metadata) dan File Manager (hapus file dengan nama yang sama).
-
-## Struktur proyek
+## Struktur berkas
 
 ```text
 jelajah-ketahun/
-├── index.php                    # Hanya peta, 1 tombol tambah gambar
-├── tambah-foto.php              # Halaman unggah gambar tersendiri
-├── assets/
-│   ├── styles.css               # Tampilan peta dan halaman unggah
-│   ├── map.js                   # Interaksi marker, pencarian, popup, galeri
-│   └── upload.js                # Pilihan desa, preview, unggah via API
+├── index.php
+├── tambah-foto.php
 ├── api/
 │   ├── bootstrap.php
-│   ├── villages.php             # Baca informasi desa dan foto
-│   └── upload.php               # Terima gambar, simpan file + data SQL
-├── config.php                   # Koneksi MySQL
-├── database.sql                 # Instalasi baru Laragon
-├── hosting_schema.sql           # SQL untuk hosting dengan DB yang sudah dibuat
-├── upgrade_database_lama.sql    # Migrasi dari versi lama
-└── uploads/desa/               # Foto yang diunggah
+│   ├── villages.php
+│   └── upload.php
+├── assets/
+│   ├── styles.css
+│   ├── map.js
+│   └── upload.js
+├── uploads/
+│   └── desa/              # foto dari user tidak dilacak Git
+├── database/
+│   ├── laragon_setup.sql
+│   └── schema.sql
+├── config.example.php     # contoh config tanpa rahasia
+├── config.php             # dibuat sendiri, diabaikan oleh Git
+├── .htaccess
+├── .gitignore
+└── README.md
 ```
+
+## Keamanan dan catatan
+
+- Tanpa login berarti **semua pengunjung dapat mengunggah gambar**. Ada validasi tipe/ukuran dan batas upload dasar, tetapi ini bukan moderasi yang memadai untuk website publik. Pertimbangkan CAPTCHA, moderasi, atau kode akses unggah di versi berikutnya.
+- Jangan commit `config.php`, password database, file backup database yang berisi data asli, atau foto orang tanpa izin.
+- Peta/koordinat membutuhkan verifikasi lapangan untuk penggunaan resmi.
+- Backup database dan berkas di `uploads/desa/` bersamaan agar koleksi foto tetap konsisten.
+- Lisensi belum ditetapkan. Repository publik tidak otomatis memberikan izin penggunaan ulang bagi pihak lain.
