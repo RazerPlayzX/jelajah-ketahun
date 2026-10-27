@@ -1,0 +1,8 @@
+Options -Indexes
+<FilesMatch "\.(php[0-9]?|phtml|phar|cgi|pl|py|sh|htaccess|ini)$">
+    Require all denied
+</FilesMatch>
+# Folder uploads hanya file gambar statis, jangan eksekusi PHP.
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
